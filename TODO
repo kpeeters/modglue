@@ -1,0 +1,172 @@
+Bugs:
+
+- There is a weird issue with O_NONBLOCK setting on stdin of forked processes.
+  This is not what one wants when doing something 'expect'-like; in that case
+  you want the child to wait for input. Why did we make this nonblocking in
+  the first place, only because modglue binaries would always use a select
+  loop to wait for input? Maybe we should make stdin for forked processes
+  blocking when these are normal Unix programs, and let them decide whether
+  to set NONBLOCK.
+
+  See pipe.cc in opipe::do_fcntl.
+
+- use forkpty()?
+
+- Need to intercept Ctrl-C in prompt, and intead feed it to the client.
+
+- prompt now works, the lesson is to NEVER use cout/cerr in modglue.
+  maybe a warning wouldn't be bad...
+
+  Still an occasional 'hang' after a program terminates, and something
+  funny with a buffer being flushed at the end (cdb: @quit produces
+  some output).
+
+- Output to unix pipe is now flawless. There is still a bug
+  in prompt which leads to cut-off of output. Since sendmsg
+  has now been disabled (everything goes through 'write'), this has to
+  be a problem with the input buffer (i.e. in the input channel of
+  prompt itself).
+
+  NOTE (important): we got the previous write problems because
+  we ignored EAGAIN on write, _even_ though we never put the
+  write channel in NONBLOCKING mode. Why is that?
+
+- an error was recently fixed which has to do with 'read' getting
+  interrupted by a signal. Is this related to the dropped char problem?
+
+- We need a wrapper around 'run' which takes a Gtk main object,
+  sets up i/o monitoring on the modglue descriptors, sets up the
+  modglue signal handlers (that's only related to child processes
+  going away, so gtk shouldn't care) and then start the gtk
+  loop. This should perhaps go into a pure header file, since
+  it is only a few lines and can easily be inlined (then we
+  won't need to have GTK/Inti installed to compile modglue, but
+  can still always 'turn this on').
+
+----
+
+- What confirmation mechanisms do we want?
+    - blocking acks are bad, they lead to deadlocks.
+    - so put the read end of the socket into the select
+      loop and monitor that internally for return codes.
+    - and then we need to have a callback function which
+      is called whenever the status of the other side
+      of a pipe is changed.
+    - return codes:  DATA_WILL_BE_IGNORED
+                     DATA_WILL_BE_USED
+                     PROCESSED [mid]
+      any others?
+
+- Add the logic that determines whether a process should keep
+  running after the input of a given pipe has stopped, or 
+  whether it should exit and a new process should start.
+
+- Every address space should have only one loader, but we can
+  have multiple listener threads in that address space listening
+  to outside pipes. So things have to be split, but we need a 
+  nice way to merge the select callback routines.
+
+  DONE. Every modglue binary will now be a `main', and we
+  still have one `loader' per address space. Creating a 
+  new address space will fork off a `loader', and those
+  will be controllable through pipes.
+
+- if we separate the gui from the real loader, and duplicate
+  inforeq and infodump to stdin and stdout respectively, we
+  can have a simple command line loader. You can start that
+  one by running `loader' and then type
+
+      add gtkshell (process)
+      connect loader:infodump,gtkshell:infohandle
+      connect loader:inforeq,gtkshell:infocommands
+      run
+
+  or something like that. Note that we still need to be able
+  to connect internally. But for modglue processes that is
+  trivial since we can just broadcast data to modglue
+  pipes very easily.
+
+    > loader
+
+    	// for monitoring
+      add gtk-shell (process)
+		connect :infodump, gtk-shell:infohandle
+		connect :inforeq, gtk-shell:infocommands
+
+		// these can be done through the gtk-shell instead if required
+      add gtk-browser (thread)
+      add gtk-renderer (thread)
+      add wget (process)
+      
+
+  for testing one can then do
+      
+      add loader
+      loader:inforeq add gtk-browser (thread)
+      connect :stdin, loader:gtk-browser:stdin
+		connect :stdout, loader:gtk-browser:stdout
+     
+
+- if we want to make `loader' a proper replacement for a shell, we should
+  really be doing something else with the commands:
+
+      > gtk-shell ^
+      > gtk-iowin ^
+      > which connect 
+        builtin command
+      > jobs
+        gtk-shell (process, not running)
+        gtk-iowin (process, not running)
+      > connect gtk-shell
+
+
+/*
+
+KEY: modules are _algorithms_, while they exchange _data_. You do 
+note exchange full _objects_! Unix works because programs are cut
+at places where they no longer care what is going to happen with
+the data they spit out. Is that the proper way to think of it? (ie.
+restrict your module boundaries). This is also why http servers are
+nice: they spit out data that is easy to manipulate but they don't
+care what you do with it.
+
+Unix pipes also have one other disadvantage: once you let go of data
+(ie. write it out to a pipe) you can no longer manipulate it at
+a later stage unless you get it fed back. We could think of 
+multi-processes sharing dom trees and being able to modify them
+(locking is important). But that is a bit like writing something
+to a temporary file and being able to get back at the data later.
+The SAX vs DOM thing is the same sort of problem: with SAX the
+outputting program lets go of data as it is being output, while
+with DOM there remains an agreed upon standard data structure
+in memory.
+
+
+Plan9 plumbing is our old concept of broadcasting messages. It's too
+inflexible, as you have a global map from message type to receiver.
+
+------------
+
+The library essentially offers a simple interface to the functionality
+of clone, in other words it allows you to start new processes in a
+separate or in the same address space in a robust way. Moreover, it
+provides a clean, pipe based way to send messages between these
+processes, which are always transported in the most efficient way. All
+processes contain at their core a select loop listening to input and
+output message pipes, which generalise the concept of stdin, stdout
+and stderr. Finally, the library provides a way to wire the processes
+together and determine how messages should flow (for instance it is
+possible to indicate whether a message should lead to new process
+creation or whether the previous receiver should remain doing so).
+
+External modules are always started using fork, internal modules
+always run as threads. All modules have a select loop at their
+core. Messages between different address spaces are serialised and put
+on the pipe between two processes, while messages in the same address
+space are just objects sitting in memory which are announced by
+writing an announcement message on the pipe between two threads.
+
+Process entry points and thread entry points are identical: the `main'
+function.
+
+ */

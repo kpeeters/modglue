@@ -1,0 +1,36 @@
+
+export RELEASE=1.11
+
+.PHONY: all install library static examples uninstall clean distclean
+
+all: library 
+#examples
+
+library:
+	( cd src && $(MAKE) );
+
+static:
+	( cd src && $(MAKE) static );
+
+examples: library
+	( cd examples && $(MAKE) );
+
+install:
+	( cd src && $(MAKE) install );
+	@INSTALL@ -d -m 755 ${DESTDIR}@prefix@/lib/pkgconfig
+	@INSTALL@ -m 644 modglue.pc ${DESTDIR}@prefix@/lib/pkgconfig/
+
+uninstall:
+	( cd src && $(MAKE) uninstall );
+	rm -f ${DESTDIR}@prefix@/bin/modglue-config
+
+clean:
+	( cd src && $(MAKE) clean );
+	( cd examples && $(MAKE) clean );
+	rm -f *~
+
+distclean: clean
+	( cd src && $(MAKE) distclean );
+	( cd examples && $(MAKE) distclean );
+	rm -f Makefile config.cache config.log config.status modglue.pc
+	rm -Rf autom4te.cache aclocal.m4

@@ -1,0 +1,71 @@
+2008-05-06  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Released 1.10
+
+	* Fixed a number of issues with the debian package.
+
+	* Fixed some issues with superfluous linking.
+
+2008-04-05  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Released 1.9
+
+	* Fixed various issues to make modglue compile on Solaris:
+
+	   - some additional #includes
+	   - linking with sockets library
+	   - openpty()
+
+	  Thanks to Alexei Petrash for suggesting these changes.
+
+2007-03-26  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Released 1.8
+
+	* Added static building of ptywrap.
+
+2007-03-05  Kasper Peeters  <kasper@pooh>
+
+	* Released 1.7
+
+	* Fixed linking with -lutil and selection of pty.h or util.h
+	for Mac OS X systems (should now work on 10.3.x and 10.4.x).
+
+2007-02-20  Kasper Peeters  <kasper@pooh>
+
+	* Removed pty opening code in ptywrap with openpty for increased
+	compatbility with e.g. Red Hat systems.
+	
+2007-02-19  Kasper Peeters  <kasper@pooh>
+
+	* Released 1.6.
+
+	* Added "wait()" to the child_process class.
+
+	* Fixed a problem in ptywrap which would prevent it from ever
+	ending properly on Mac OS X. 
+	
+	* Released 1.5.
+
+	* Enabled ptywrap for Mac OS X.
+
+2007-02-15  Kasper Peeters  <kasper@localhost>
+
+	* Released 1.4.
+
+	* Made ptywrap compile on Mac OS X.
+
+2007-02-06  Kasper Peeters  <kasper@pooh>
+
+	* Released 1.3.
+
+	* Added proper versioning support using -version-info rather than
+	the -release system. 
+
+2006-08-18  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Added support for Mac OS X.
+
+	* Version 1.2 released.
+	
+

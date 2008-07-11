@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# This script will eventually be replaced with something that does
+# not rely on gtkshell.
+#
+gtkshell \
+  --module=$1

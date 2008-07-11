@@ -1,0 +1,8 @@
+#!/bin/sh
+src/gtkshell \
+ --module='src/gtkshell' \
+ --module='src/gtkiowin' \
+ --bond=src/gtkshell:inforeq,src/gtkiowin:stdout \
+ --bond=src/gtkshell:infodump,src/gtkiowin:stdin \
+ --bond=src/gtkshell:fddump,src/gtkiowin:stdexc \
+  $*

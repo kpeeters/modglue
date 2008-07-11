@@ -1,0 +1,140 @@
+
+
+MACTEST= @MAC_OS_X@
+
+ifeq ($(strip $(MACTEST)),)
+LIBTOOL = libtool
+else
+export MACOSX_DEPLOYMENT_TARGET=10.3
+LIBTOOL = glibtool
+endif
+
+# We use libtool but without any of the automake 
+# nonsense, so we only need the following 5 lines.
+
+LTRELEASE = `echo ${RELEASE} | sed -e "s/\./:/g"`
+
+CPHASE = ${LIBTOOL} --tag=CXX --mode=compile @CXX@ -c @CFLAGS@
+LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/lib @LIBS@
+MPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@
+IPHASE = ${LIBTOOL} --mode=install @INSTALL@
+FPHASE = ${LIBTOOL} --mode=finish @prefix@/lib
+
+TIMESTAMP = -D"DATETIME=\"`date | sed -e 's/  / /'`\"" -DHOSTNAME=\"`hostname`\"
+
+all: library tests tools
+
+TOOLS  = ptywrap isatty prompt
+THELIB = libmodglue.la libmid.la
+TESTS  = test_child_process test_pipe test_ext_process test_writes
+
+library: ${THELIB}
+tools:   ${TOOLS}
+tests:   ${TESTS}
+static:  prompt_static ptywrap_static
+
+#------- Generic ----------------------------------------
+
+%.lo: %.cc
+	${CPHASE} ${TIMESTAMP} -I@top_srcdir@/include `pkg-config sigc++-2.0 --cflags` $<
+
+%.o: %.cc
+	@CXX@ -c ${TIMESTAMP} -D"USE_UTIL_H=@USE_UTIL_H@" -I@top_srcdir@/include `pkg-config sigc++-2.0 --cflags` $<
+
+libmid.la: mid.lo
+	${LPHASE} -o libmid.la $<
+
+libmodglue.la: process.lo pipe.lo main.lo ext_process.lo
+	${LPHASE} -o libmodglue.la `pkg-config sigc++-2.0 --libs` $^
+
+#------- Tests ----------------------------------------
+
+test_child_process: test_child_process.o
+	${MPHASE} -o test_child_process $< libmodglue.la
+
+test_ext_process: test_ext_process.o
+	${MPHASE} -o test_ext_process $< libmodglue.la
+
+test_pipe: test_pipe.o
+	${MPHASE} -o test_pipe $< libmodglue.la
+
+test_writes: test_writes.o
+	${MPHASE} -o test_writes $< libmodglue.la
+
+#------- Tools ----------------------------------------
+
+prompt: prompt.o
+	${MPHASE} -o prompt prompt.o `pkg-config sigc++-2.0 --libs` libmodglue.la 
+
+prompt_static: prompt.cc library
+	${CPHASE} ${TIMESTAMP} -o prompt.o \
+          -I@top_srcdir@/include -DSTATICBUILD `pkg-config sigc++-2.0 --cflags` prompt.cc
+ifeq ($(strip $(MACTEST)),)
+	g++ -o prompt -static prompt.o -L.libs `pkg-config sigc++-2.0 --libs` -lmodglue -lsigc-2.0
+else
+	g++ -o prompt prompt.o ./.libs/libmodglue.a \
+         `pkg-config sigc++-2.0 --libs | sed -e 's/ .*//' -e 's/-L//'`/libsigc-2.0.a
+endif
+
+
+ptywrap: ptywrap.o
+	${MPHASE} -o ptywrap ptywrap.o @LINK_UTIL@
+
+ptywrap_static: ptywrap.o
+	${CPHASE} ${TIMESTAMP} -o ptywrap.o \
+          -I@top_srcdir@/include -DSTATICBUILD ptywrap.cc
+ifeq ($(strip $(MACTEST)),)
+	g++ -o ptywrap -static ptywrap.o -L.libs @LINK_UTIL@
+else
+	g++ -o ptywrap ptywrap.o ./.libs/libmodglue.a \
+         `pkg-config sigc++-2.0 --libs | sed -e 's/ .*//' -e 's/-L//'`/libsigc-2.0.a @LINK_UTIL@
+endif
+
+
+isatty: isatty.o
+	@CXX@ -o isatty $< 
+
+#------- Library --------------------------------------
+
+install: library tools
+	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@
+	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/lib
+	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/bin
+	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/include/modglue
+	${IPHASE} libmodglue.la ${DESTDIR}@prefix@/lib
+	${IPHASE} libmid.la ${DESTDIR}@prefix@/lib
+	${FPHASE}
+	${IPHASE} ptywrap ${DESTDIR}@prefix@/bin
+	${IPHASE} prompt ${DESTDIR}@prefix@/bin
+	${IPHASE} isatty ${DESTDIR}@prefix@/bin
+	@INSTALL@ -m 0644 ../include/modglue/ext_process.hh ${DEVDESTDIR}@prefix@/include/modglue
+	@INSTALL@ -m 0644 ../include/modglue/process.hh ${DEVDESTDIR}@prefix@/include/modglue
+	@INSTALL@ -m 0644 ../include/modglue/pipe.hh ${DEVDESTDIR}@prefix@/include/modglue
+	@INSTALL@ -m 0644 ../include/modglue/main.hh ${DEVDESTDIR}@prefix@/include/modglue
+
+clean:
+	rm -f *.o *.lo *~ libmodglue* libmid* 
+	rm -f ${TESTS} ${TOOLS} ptywrap_static prompt_static
+
+distclean: clean
+	rm -f Makefile 
+	rm -Rf .libs
+
+
+#------- Disabled ----------------------------------------
+
+# open.o: open.c
+# 	@CC@ @CFLAGS@ `dlobject --cflags` -I@top_srcdir@/include -c -o $@ $<
+# 
+# shell.o: shell.cc
+# 	@CXX@ -o shell.o -I@top_srcdir@/include `proj++-config --cflags` `pkg-config sigc++-2.0 --cflags` -c $< 
+# 
+# modshell: modshell.o shell.o 
+# 	@CXX@ -o modshell -L. `proj++-config --libs` `pkg-config sigc++-2.0 --libs` $^ -lmodglue 
+# 
+# preload: libpipe.so.${VERSION}
+# 
+# libpipe.so.${VERSION}: open.o
+# 	@CC@ `dlobject --visiblename=libpipe.so.${VVERSION} --lflags` -o libpipe.so.${VERSION} $^ -ldl
+# 	ln -f -s libpipe.so.${VERSION} libpipe.so
+# 

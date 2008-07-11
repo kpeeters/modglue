@@ -1,0 +1,93 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=us-ascii"> 
+<title>libModglue: a C++ library for handling co-processes</title>
+<link rel="stylesheet" type="text/css" href="../software.css"> 
+</head>
+<body bgcolor="white">
+<h1>libModglue: a C++ library for handling co-processes</h1>
+<h2 class="author">Kasper Peeters, kasper.peeters (at) aei.mpg.de</h2>
+
+<h2>Overview</h2> 
+
+<div class="text">
+The libModglue library is a C++ library with classes for forking external
+processes and asynchronous reading from streams. It takes
+away the burden of all subtleties involving the Unix <tt>fork</tt> 
+call. The asynchronous read facility enables one to read on
+multiple input streams at the same time, without loosing any
+of the standard C++ stream facilities.</div>
+
+<div class="text">
+There are also
+several small additional programs bundled with modglue, such as a
+program to add readline capability to any command line program.
+Moreover, the modglue library extends the idea of standard Unix pipes
+by providing a general framework for the creation of new processes
+with more than just the standard stdin/stdout/stderr pipes.</div>
+
+<h2>Simple example<h2>
+<blockquote>
+<table width="80%"><tr><td bgcolor="#e0e0e0"><pre>
+#include &lt;modglue/modglue.hh&gt;
+
+modglue::pipe foopipe("foo", modglue::pipe::input,  0);
+modglue::pipe barpipe("bar", modglue::pipe::output, 1);
+
+void print(const string& txt)
+   {
+   cout << "received " << txt << " on foo pipe" << endl;
+   cout << "sending something on bar pipe" << endl;
+   while(txt!="end") {
+      string str;
+      if(!foopipe.read(str,2))
+         break;
+      }
+   barpipe.sender("thank you!");
+   }
+
+int main(int argc, char **argv) 
+   {
+   modglue::main mm(&argc, &argv);
+
+   mm.add(pipe1);
+   mm.add(pipe2);
+
+   foopipe.receiver.connect(slot(print));
+   
+   mm.run();
+   }
+</table></blockquote>
+
+<h2>Utilities</h2>
+<blockquote>
+Several small programs are bundled with modglue. They provide some
+additional functionality that was easy to implement with the library,
+or are generally useful for command-line driven programs. 
+<dl>
+<dt><a name="ptywrap"><strong>ptywrap</strong> (modglue executable)</dt><p>
+   <dd>Starts a program with stdin/stdout/stderr connected to a pseudo
+       tty device, and map them to fd 0,1,2. This can be used to trick
+       programs like <tt>ftp</tt> or <tt>sed</tt> into thinking that
+       they are running interactively.
+       <blockquote><small>
+       <pre>> ptywrap [unix executable]</pre></small></blockquote>
+		 is all you need to know.
+   </dd>
+<p>
+<dt><a name="prompt"><strong>prompt</strong> (modglue executable)</dt><p>
+   <dd>The prompt utility wraps other programs such that their input
+       has the well-known readline behaviour. In other words, you can
+       use the cursor keys for editing, there is a history, and so on.
+       Useful for programs like <tt>ftp</tt> that lack this
+       functionality.
+   </dd>
+</dl>
+</blockquote>
+<p><br><p>
+
+<hr noshade size=1>
+$Id: index.html,v 1.38 2007/03/08 16:57:25 peekas Exp $
+</body>
+</html>

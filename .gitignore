@@ -1,0 +1,9 @@
+aclocal.m4
+autom4te.cache
+modglue.pc
+out*
+Makefile
+config.status
+config.cache
+config.log
+modglue-config

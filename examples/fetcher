@@ -1,0 +1,23 @@
+#!/bin/sh
+src/gtkshell \
+ --module='sed -e "s/\(.*\)/\1 -O -/"' \
+   --id=sed \
+ --module='grep HTML' \
+   --id=grep \
+ --module='wget' \
+   --options=start_on_input \
+ --module='src/gtkiowin' \
+   --id=viewer \
+ --module='src/gtkiowin' \
+   --options=start_on_input \
+   --id=error_output \
+ --module='examples/periodic "Type a URL in the box above."' \
+   --options=abort_on_failed_write \
+ --bond=sed:stdout,wget:startup_args \
+ --bond=sed:stdin,viewer:stdout \
+ --bond=wget:stdout,grep:stdin \
+ --bond=grep:stdout,viewer:stdin \
+ --bond=examples/periodic:stdout,viewer:stdexc \
+  $*
+
+# --bond=wget:stderr,error_output:stdexc \

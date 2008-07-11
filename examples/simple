@@ -1,0 +1,10 @@
+#!/bin/sh
+gtkshell \
+ --module='src/gtkiowin' \
+ --module='examples/periodic_modglue' \
+   --options=abort_on_failed_write \
+ --module='examples/periodic' \
+   --options=abort_on_failed_write \
+ --bond=src/gtkiowin:stdexc,examples/periodic_modglue:foo \
+ --bond=src/gtkiowin:stdin,examples/periodic:stdout \
+ $* 

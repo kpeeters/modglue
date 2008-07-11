@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=${prefix}  # defining another variable in terms of the first
+libdir=${exec_prefix}/lib
+includedir=${prefix}/include
+
+Name: modglue
+Description: C++ library for pipes and external processes
+Version: 1.0.0
+URL: http://www.aei.mpg.de/~peekas/modglue
+Requires: sigc++-2.0 >= 2.0.0
+Libs: -L${libdir} -lmodglue
+Cflags: -I${includedir}

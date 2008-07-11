@@ -1,0 +1,26 @@
+
+all: periodic multi_io use_wget #periodic_modglue #multi_io 
+
+%.o: %.cc
+	@CXX@ @CFLAGS@ -I@top_srcdir@/include `pkg-config modglue --cflags` -c -o $@ $<
+
+use_wget: use_wget.o
+	@CXX@ -o use_wget -L../src `pkg-config modglue --libs` use_wget.o 
+
+multi_io: multi_io.o
+	@CXX@ -o multi_io -L../src `pkg-config modglue --libs` multi_io.o -lmodglue
+
+periodic: periodic.o
+	@CXX@ -o periodic -L../src periodic.o 
+
+periodic_modglue: periodic_modglue.o
+	@CXX@ -o periodic_modglue -L../src periodic_modglue.o -lmodglue
+
+install:
+
+clean:
+	rm -f *.o *~ multi_io periodic periodic_modglue
+
+distclean:
+	rm -f Makefile
+

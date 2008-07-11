@@ -1,0 +1,452 @@
+<html>
+<head>
+<title>modglue documentation</title>
+<!-- Changed by: Kasper Peeters,  7-Aug-2001 -->
+</head>
+<body bgcolor="white">
+<center>
+<h1>modglue</h1>
+a <a href="http://plan9.bell-labs.com/plan9dist/">Plan9</a>-inspired extension of
+the Unix pipe concept<br><p>
+<a href="../index.html">Kasper Peeters</a>, &lt;<a href="mailto:k.peeters@damtp.cam.ac.uk">K.Peeters@damtp.cam.ac.uk</a>&gt;
+</center>
+<p>
+<table width="100%">
+<tr><td>[<a href="#overview">overview</a>]</td>
+    <td>[<a href="#download">download</a>]</td>
+    <td>[<a href="#library">library</a>]</td>
+    <td>[<a href="#shell">shell overview</a>]</td>
+    <td>[<a href="#shellmanual">shell manual</a>]</td>
+    <td>[<a href="#utilities">utilities</a>]</td>
+    <td>[<a href="#faq">faq</a>]</td>
+</tr>
+</table>
+<p>
+<center>
+<strong>WARNING: Modglue is in an experimental stage right now. It may
+not even compile. The text below does not necessarily reflect the
+status of the code.</strong>
+<p>
+</center>
+<a name="overview">
+<h3>Overview</h3> 
+<blockquote>
+Modglue is a combination of several software tools that assist in
+writing and running programs connected to each other using standard
+Unix pipes. There are two main parts to it, the modglue library and
+the modglue shell. In more detail:
+<dl>
+<dt><a href="#library">modglue library</a></dt>
+<dd>This is a C++ library with classes for forking external
+processes and asynchronous reading from streams. It takes
+away the burden of all subtleties involving the Unix <tt>fork</tt> 
+call. The asynchronous read facility enables one to read on
+multiple input streams at the same time, without loosing any
+of the standard C++ stream facilities.</dd>
+<dt><a href="#shell">modglue shell</a></dt>
+<dd>A shell with special support for arbitrarily connecting
+process pipes together, in a way that goes beyond the standard
+Unix linear pipe idea (a bit like ksh co-processes, but much
+more powerful). In contrast to existing shells, you can start
+any number of processes and connect their stdin/stderr/stdout
+pipes in any way you like, not just linear as usual.</dd>
+</dl>
+Each of these is explained in more detail below. There are also
+several small additional programs bundled with modglue, such as a
+program to add readline capability to any command line program.
+<p>
+Moreover, the modglue library extends the idea of standard Unix pipes
+by providing a general framework for the creation of new processes
+with more input or output pipes. The modglue library has support for
+this built in, but the setup is general and can be used from any
+language.
+<p>
+In general, the idea behind modglue is that the Unix pipe concept
+is very powerful, but insufficient to construct interactive programs
+that require bidirectional communication between processes. The
+library and shell extend this concept in a completely backwards
+compatible way such that large robust systems can be built from
+individual Unix building blocks.
+<p>
+The idea of "circularly connected pipes" is not new, but usually only
+implemented in an ad-hoc fashion. See for instance <a
+href="http://www.satisoft.com/satshell/">satshell</a>, which is a gui
+tool which reads gui building commands from stdin and writes event
+information (pressed buttons and so forth) to stdout. In this case,
+the satshell program itself is given a program to which it should
+connect its stdin and stdout. For another similar idea (though without
+implementation), see this <a
+href="http://freshmeat.net/articles/view/171/">Freshmeat editorial</a>
+by David Symonds.  Modglue separates the connection logic from the
+actual program (in the context of satshell, the gui tool would be one
+process and the script another, and modglue would connect their
+stdin/stdout pipes in a circular way). 
+<p>
+Once Unix building blocks are more easily connected in order to
+build complex programs, one can perhaps start building graphical tools
+to do this (an example of this approach, though with custom building
+blocks instead of programs that stick to the Unix pipe philosophy, can
+be found in <a href="http://www.triana.co.uk/">triana</a>).
+</blockquote>
+<p><br><p>
+
+<a name="download">
+<h3>Download and install</h3>
+<blockquote>
+You need the following additional software in order to compile
+and use modglue:
+<ul>
+<li>A decent C++ compiler; gcc 3.0 and higher will do.</li>
+<li>My C++ helper library <a href="../proj++/index.html">proj++</a>
+(which takes care of building shared libraries and provides timers).</li>
+<li>Karl Nelson's
+<a href="http://libsigc.sourceforge.net/">libsigc++</a>
+library.</li>
+</ul>
+<p>
+Then, download and install <a
+href="modglue.tar.gz">modglue.tar.gz</a>. Follow the 
+instructions in the INSTALL file for installation details.
+</blockquote>
+<p><br><p>
+
+<h3><a name="library">Modglue library</a></h3> 
+<blockquote>
+<blockquote>
+<table width="80%"><tr><td bgcolor="#e0e0e0"><pre>
+#include &lt;modglue/modglue.hh&gt;
+
+modglue::pipe foopipe("foo", modglue::pipe::input,  0);
+modglue::pipe barpipe("bar", modglue::pipe::output, 1);
+
+void print(const string& txt)
+   {
+   cout << "received " << txt << " on foo pipe" << endl;
+   cout << "sending something on bar pipe" << endl;
+   while(txt!="end") {
+      string str;
+      if(!foopipe.read(str,2))
+         break;
+      }
+   barpipe.sender("thank you!");
+   }
+
+int main(int argc, char **argv) 
+   {
+   modglue::main mm(&argc, &argv);
+
+   mm.add(pipe1);
+   mm.add(pipe2);
+
+   foopipe.receiver.connect(slot(print));
+   
+   mm.run();
+   }
+</table></blockquote>
+</blockquote>
+<p><br><p>
+
+<h3><a name="shell">Modglue shell overview</a></h3> 
+<blockquote>
+On Unix systems, the standard way to combine small
+programs into bigger ones is to tie them together using pipes. As all
+standard conforming programs have three standard pipes (stdin, stdout,
+stderr) open, it is easy to feed the output of one program into
+another one:
+<blockquote>
+<pre>wget -O - http://somewhere | grep "something"</pre>
+</blockquote>
+However, this way of connecting programs is limited in the sense that 
+data only flows one way (from the first program to the second and so
+on, but never back).
+<p>
+
+Some shells have ways to circumvent this limitation. The
+<a href="http://www.cs.princeton.edu/~jlk/kornshell/doc/man93.html#Commands">korn
+shell</a> has so-called "co-processes", which you can start as
+<blockquote>
+<pre>program |&</pre>
+</blockquote>
+after which you can read from and write to the standard pipes. A
+similar concept exists in <a
+href="http://sunsite.dk/zsh/Doc/Release/zsh_5.html#IDX27">zsh</a>,
+where co-processes are started by pre-fixing them with the command 
+"coproc". Although very useful, these shells only allow for a single
+co-process.
+<p>
+Moreover, there is no standard way
+to extend the number of input/output pipes that a program can have.
+(co-processes do not allow for input redirection to startup arguments; since many
+programs can only take their arguments from argv and not from stdin, this is
+(unfortunately) a requirement. Also, these guys do not provide a pseudo-tty so most
+programs started as coprocesses will start buffering).
+<p>
+The modglue library takes the Unix concept one step further
+and allows programs to open more than these three standard
+pipes. Furthermore, the links between programs can be more flexible
+(you can have complicated graph-like structures instead of just a
+single linear pipe) and writing programs that listen on multiple
+pipes in a non-blocking way is considerably easier. For instance,
+a program could be prompting the user with a dialog for entering
+a url, then send that request out through its output pipe,
+and read in any responses through its input pipe.
+<p>
+The modglue library implements a strict superset of the standard Unix
+pipe idea: all normal Unix programs can be used as modglue building
+blocks, the only limitation being that these programs of course
+have only the three standard pipes.
+<p>
+<p>
+
+There are two types of programs in the modglue world: <strong>unix executables</strong> and
+<strong>modglue executables</strong>. The second category is a strict superset of the first one; all 
+modglue executables are also unix executables, though they may not be able to offer full 
+functionality when run from a unix shell instead of the modglue shell.
+</blockquote>
+<p><br><p>
+
+<h3><a name="shellmanual">Modglue shell user manual</a></h3> 
+<blockquote>
+Modshell is the analogue of a normal unix shell like bash or csh. It
+contains the logic to tie sockets of various modglue executables
+together and spawn new processes. However, it is intended to be usable
+as a replacement for a normal Unix shell, in the sense that running
+programs in the normal Unix way is supported (with the standard
+notation, eg. using the '&amp;' character to start programs in the
+background and the '|' character to connect stdout/stdin of
+programs). In more detail, the options are:
+
+<dl>
+<dt><em><strong>start</strong> programs immediately</em></dt>
+  <dd>This is like starting programs on a Unix shell. Just type the
+      command (followed by its arguments, if any) and press return. 
+      You will not get a prompt back before 
+      the program returns. The stdin/stdout/stderr sockets of the
+      program will be connected to the stdin/stdout/stderr sockets
+      of the modshell.
+      <p>
+      If you try to start Unix executables this way, they will automatically
+      be wrapped using the "<tt><a href="#ptywrap">ptywrap</a></tt>" command.
+  </dd><p>
+<dt><em><strong>start</strong> programs in the background</em></dt>
+  <dd>This is again like starting programs on a Unix shell. Just type the
+      command (followed by its arguments, if any) followed by a '&amp;'
+      character and press return. Any output will be buffered, but in
+      contrast to the situation in Unix, you can connect the stdout/stderr
+      (or any socket, for that matter) of the running program even
+      <em>after</em> the program has been started.
+  </dd><p>
+<dt><em><strong>list</strong> all running and runnable programs</em></dt>
+  <dd>Type the command "<tt>jobs</tt>". This produces a list of the
+      following form:
+      <blockquote><small>
+      <pre>> jobs
+13446 running                       xbiff
+                                      xbiff::stdin
+                                      xbiff::stdout
+                                      xbiff::stderr
+13447 running                       gtkiowin
+                                      gtkiowin::stdin
+                                      gktiowin::stdexc
+13558 standby, start_on_input       wget -O -
+                                      wget::stdin
+                                      wget::stdout
+                                      wget::stderr
+</pre></small></blockquote>
+  </dd>
+	<p>
+<dt><em><strong>list</strong> all socket connections</em></dt>
+  <dd>Type the command "<tt>bonds</tt>". This produces a list of the
+      all connections between sockets of different executables.
+  </dd>
+  <p>
+<dt><em><strong>add</strong> programs to the runnable list</em></dt>
+  <dd>Type the program name, and append a '^' character. This will
+      not start the program yet, so that you can still connect
+      its socket to those of other programs (see the "connect" command).
+      <p>
+      Options can be given by adding them in a comma separated list 
+      after the '^' character. 
+      At the moment, the available ones are <strong>start_on_input</strong>
+      and <strong>abort_on_failed_write</strong>.
+  </dd><p>
+<dt><em><strong>start</strong> programs in the runnable list</em></dt>
+  <dd>Type "<tt>[pid] &</tt>" where `<tt>pid</tt>' is the process identifier
+      of a process in the runnable list. This is similar to the way suspended 
+      unix binaries are restarted in the background in normal unix shells.
+  </dd><p>
+<dt><em><strong>connect</strong> sockets of different programs</em></dt>
+  <dd>Type "<tt>connect</tt>" followed by a space-separated list of the sockets of
+      the programs which you want to connect.
+      <p>
+      There is a shortcut possible if you just want to connect in the
+      normal Unix way (connect stdout and/or stderr of one program to stdin of the
+      next): just type the program names separated by a pipe symbol '|'.
+  </dd>
+</dl>
+</dd>
+</dl>
+</blockquote>
+<p><br><p>
+
+<a name="utilities">
+<h3>Utilities</h3>
+<blockquote>
+Several small programs are bundled with modglue. They provide some
+additional functionality that was easy to implement with the library,
+or are generally useful for command-line driven programs. 
+<dl>
+<dt><a name="ptywrap"><strong>ptywrap</strong> (modglue executable)</dt><p>
+   <dd>Starts a program with stdin/stdout/stderr connected to a pseudo
+       tty device, and map them to fd 0,1,2. This can be used to trick
+       programs like <tt>ftp</tt> or <tt>sed</tt> into thinking that
+       they are running interactively.
+       <blockquote><small>
+       <pre>> ptywrap [unix executable]</pre></small></blockquote>
+		 is all you need to know.
+   </dd>
+<p>
+<dt><a name="prompt"><strong>prompt</strong> (modglue executable)</dt><p>
+   <dd>The prompt utility wraps other programs such that their input
+       has the well-known readline behaviour. In other words, you can
+       use the cursor keys for editing, there is a history, and so on.
+       Useful for programs like <tt>ftp</tt> that lack this
+       functionality.
+   </dd>
+</dl>
+</blockquote>
+<p><br><p>
+
+<a name="faq">
+<h3>Frequently asked questions</h3>
+<blockquote>
+<dl>
+<dt><strong>What about threads?</strong></dt>
+   <dd>An initial implemention of modglue supported loading modglue executables
+       as threads. This was, however, extremely ugly. Studying <a href="http://plan9.bell-labs.com/plan9dist/">Plan9</a> I have come
+       to the conclusion that for almost all tasks it is better to redesign modules
+       (divide the functionality differently) in such a way that they can each
+       run in individual address spaces. Careful use of the select loop facilities
+       of modglue is the right way to go.
+   </dd>
+<p>
+<dt><strong>How does it compare to DCOP, CORBA, XML-RPC and so
+on?</strong></dt>
+    <dd>What sets modglue apart from other mechanisms to build software using
+independent components are its compatibility with the Unix pipe system,
+the idea of a shell determining which connections to make (instead of
+modules determining themselves to which other module they want to connect)
+and its simplicity. Among the other available systems, there is
+<a href="http://k-lug.com/doclib/KDE20Development-html/ch13.html">DCOP</a>
+(used in KDE, has a special non-ascii communication method that
+is incompatible with Unix pipes, modules make explicit requests for
+services instead of leaving that to the shell), CORBA and XML-RPC.
+<p>
+Some of the functionality of modglue can be found in <a
+href="http://dev.scriptics.com/">TCL</a>, in particular the ability to 
+send data to the stdin of an already forked program. Modglue aims for
+a much more basic goal: it just links programs together, nothing more.
+In this sense it is a lot simpler than TCL (and it feels more like
+a normal Unix shell).
+</dd>
+<p>
+<dt><strong>Sockets are bidirectional, so why are all modglue pipes still uni-directional?</strong></dt>
+   <dd>Even though modglue uses sockets for all communication between processes,
+       the pipes are always either reading or writing pipes, but not both. This
+       is done to mimick as closely as possible the Unix pipe idea, which uses
+       unidirectional communication (you cannot write to stdin, for instance).
+       <p>
+       The `other' component of the socket channel is used solely for status information,
+       and never directly visible to the user of the program. These status messages
+       are suppressed when modglue binaries run in Unix mode, so they do not interfere
+       with normal expected Unix pipe behaviour.
+   </dd>
+<p>
+<dt><strong>What names should I give to my pipes?</strong></dt>
+   <dd>Even though you have the option of giving arbitrary names to programs, it
+       pays off to think about this for a little while. If the program is small
+		 enough and the program name itself describes its function, just using
+		 <tt>stdin</tt>, <tt>stdout</tt> and <tt>stderr</tt> can be a good choice.
+		 <p>
+		 In case your program is going to write explicit requests for data
+		 on a pipe and then listen for the reply on another one, it is good
+		 to make the names related. Suggested are <tt>reqout</tt> and <tt>reqret</tt>
+       and variations thereof if you need more than one pair.
+   </dd>
+<p>
+<dt><strong>How does message tagging work?</strong></dt>
+   <dd>Since the <tt>sendmsg</tt> and <tt>recvmsg</tt> system calls can cut
+	up and re-assemble the messages in arbitrary ways, modglue provides an 
+	alternative mechanism to make sure that the messages you send are only
+	processed at the other end when all the data has arrived. The way in which
+	this works is that all data is encapsulated in the following structure
+	before it is handed to <tt>sendmsg</tt>:
+	<blockquote>
+   <table noborder bgcolor="#e0e0e0">
+	<tr><th>field</th><th>size (bytes</th></tr>
+	<tr><td>version number and flags</td><td>1</td></tr>
+	<tr><td>stream identifier</td><td>8</td></tr>
+	<tr><td>length</td><td>4</td></tr>
+	<tr><td>data</td><td>length</td></tr>
+	</table>
+	</blockquote>
+	The reader will then be able to figure out whether to wait for more messages
+	to come which really belong to the same outgoing message.
+	<p>
+	See the next question for info about the stream identifier field. 
+	<p>
+	Obviously this header yields some overhead, and makes it clear that you
+	should try to avoid sending only a few bytes of data. Compared to something
+	like XML-RPC, the cost is still pretty minimal though.
+   </dd>
+<p>
+<dt><strong>How can I make asynchronous requests for data? (asynchronous remote procedure calls)</strong></dt>
+   <dd>If you send a message using the normal <tt>sender</tt> member of a
+	pipe, it will be stamped with a system wide unique identifier (see the table
+	above). It is, however, possible to send a message with the identifier of
+	a previously received message, such that it becomes possible to relate
+	a number of messages into one `stream'. 
+	<p>
+	Making an asynchronous request then goes as follows. Create a message with
+	a new identifier, and store the identifier somewhere. When input comes
+	in, compare its identifier to what was stored. If they match, it is a reply.
+   </dd>
+<p>
+<dt><strong>What about synchronous (blocking) reads or send/read?</strong></dt>
+   <dd>There are no facilities for this, because it very easily leads
+	to deadlocks. If your reading process blocks, waiting for data,
+	then it blocks everything, including reading from other channels.
+   <p>
+   If you never block but instead use the main event loop to wait for
+	incoming data, you avoid all potential deadlock situations. Just
+   think differently.
+</dd>
+<p>
+<dt><strong>How does modglue compare to notification messaging systems
+like <a href="http://elvin.dstc.com/doc/index.html">Elvin</a>?</strong></dt>
+   <dd>The idea of notification systems is always that various
+	programs send messages out, and other programs can decide to
+	subscribe to these messages (based on the content). The Plan9
+	<strong>plumbing</strong> concept is similar in spirit.
+   <p>
+   In modglue, the user who starts processes decides which pipes it is
+   going to listen to. This puts a little bit more burden on the user,
+   but removes altogether a complicated layer of message distribution
+	algorithms. Modglue is thus simpler, at the expense of needing a 
+   user willing to do a little bit more work.
+   </dd>
+</p>
+<dt><strong>Is it fast enough?</strong></dt>
+   <dd>Obviously, you cannot expect a few thousand small read/writes from one process
+	  to the other to be anywhere near as fast as the same number of direct function calls
+     in a linked library. Therefore, it pays off to think about how to group your data
+	  into big chunks if you want to have maximum speed.
+   </dd>
+</dl>
+</blockquote>
+<p><br><p>
+
+<hr noshade size=1>
+$Id: oldindex.html,v 1.1 2007/03/05 22:39:00 peekas Exp $
+</body>
+</html>

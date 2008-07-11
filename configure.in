@@ -1,0 +1,82 @@
+dnl Process this file with autoconf to produce a configure script.
+AC_INIT(src/shell.cc)
+
+dnl Variable overrides
+dnl PACKAGE=modglue
+dnl VERSION=0.9
+dnl AC_SUBST(PACKAGE)
+dnl AC_SUBST(VERSION)
+
+dnl Checks for programs.
+
+AC_PROG_CC
+AC_PROG_CXX
+AC_PROG_LN_S
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+dnl AC_PROG_LIBTOOL
+
+dnl Checks for libraries.
+dnl Checks for header files.
+
+MAC_OS_X=""
+if test "`uname`" == "Darwin"
+   then MAC_OS_X="1"
+        echo "checking system type... Darwin"
+   else echo "checking system type... Unix"
+fi
+
+AC_PREFIX_DEFAULT(/usr/local)
+
+# Taken from a random aclocal.m4 found on the net;
+# tests to ensure that we link with the right libraries
+# for networking functionality.
+AC_DEFUN(AC_LIBRARY_NET, [
+   # Most operating systems have gethostbyname() in the default searched
+   # libraries (i.e. libc):
+   AC_CHECK_FUNC(gethostbyname, ,
+     # Some OSes (eg. Solaris) place it in libnsl:
+     AC_CHECK_LIB(nsl, gethostbyname, , 
+       # Some strange OSes (SINIX) have it in libsocket:
+       AC_CHECK_LIB(socket, gethostbyname, ,
+          # Unfortunately libsocket sometimes depends on libnsl.
+          # AC_CHECK_LIB's API is essentially broken so the following
+          # ugliness is necessary:
+          AC_CHECK_LIB(socket, gethostbyname,
+             LIBS="-lsocket -lnsl $LIBS",
+               AC_CHECK_LIB(resolv, gethostbyname), -lnsl)
+       )
+     )
+   )
+  AC_CHECK_FUNC(socket, , AC_CHECK_LIB(socket, socket, ,
+    AC_CHECK_LIB(socket, socket, LIBS="-lsocket -lnsl $LIBS", , -lnsl)))
+  ])
+
+
+AC_LIBRARY_NET
+
+USE_UTIL_H=1
+AC_CHECK_HEADERS(util.h)
+if test "${ac_cv_header_util_h}" == "no"
+   then USE_UTIL_H=0
+fi
+LINK_UTIL=""
+
+AC_CHECK_LIB(util,openpty, [LINK_UTIL="-lutil"])
+
+PKG_CHECK_MODULES([sigc], [sigc++-2.0]) 
+
+dnl AC_SUBST(install_flags)
+AC_SUBST([MAC_OS_X])
+AC_SUBST([USE_UTIL_H])
+AC_SUBST([LINK_UTIL])
+AC_SUBST([LIBS])
+
+dnl The output files
+AC_OUTPUT(
+  Makefile 
+  modglue.pc
+  src/Makefile 
+  examples/Makefile
+)
+

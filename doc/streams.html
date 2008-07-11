@@ -1,0 +1,27 @@
+
+overflow:
+    This function is called on output, when there is no buffer, or no
+        space in the existing buffer.  If you want buffering, the buffer
+        should be set up in the first call to overflow.  The argument is the
+        character to be output, or EOF.  For historical reasons, it is
+        probably advisable to call sync on EOF.
+
+    The exact functionality of this function will depend on the
+        buffering strategy used.  Without buffering, just output the
+        argument, returning the character output, or EOF on error.  With
+        buffering: if there is no buffer, create one, otherwise flush it,
+        and insert the character into the buffer.  (Use the function setp to
+        initialize the buffer, or to reset it to empty once you've flushed
+        it, and the functions gptr and egptr to get the current values.)
+
+underflow:
+        This function is called on input, which is a little more
+        complicated.  In particular, although the function returns the next
+        character in the stream, it does *not* extract it from the stream.
+        Input *must* be buffered, although a one character buffer is
+        sufficient.  Also, there is no guarantee that the get buffer will be
+        empty when this function is called, so you have to check that.  In
+        all cases, when you return, 1) the next character must be present in
+        the buffer -- if there wasn't a buffer before, you have to create
+        one, and 2) that character must be returned.
+
