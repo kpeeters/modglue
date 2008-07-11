@@ -24,6 +24,9 @@ uninstall:
 	( cd src && $(MAKE) uninstall );
 	rm -f ${DESTDIR}@prefix@/bin/modglue-config
 
+tarball:
+	git archive --format=tar --prefix=modglue-${RELEASE}/ HEAD | gzip > ${HOME}/tmp/modglue-${RELEASE}.tar.gz
+
 clean:
 	( cd src && $(MAKE) clean );
 	( cd examples && $(MAKE) clean );
