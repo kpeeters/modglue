@@ -20,12 +20,12 @@ multiple input streams at the same time, without loosing any
 of the standard C++ stream facilities.</div>
 
 <div class="text">
-There are also
-several small additional programs bundled with modglue, such as a
-program to add readline capability to any command line program.
-Moreover, the modglue library extends the idea of standard Unix pipes
-by providing a general framework for the creation of new processes
-with more than just the standard stdin/stdout/stderr pipes.</div>
+There are also several small additional programs bundled with modglue,
+such as a program to add readline capability to any command line
+program.  Moreover, the modglue library extends the idea of standard
+Unix pipes by providing a general framework for the creation of new
+processes with more than just the standard stdin/stdout/stderr
+pipes.</div>
 
 <h2>Simple example<h2>
 <blockquote>
@@ -60,13 +60,20 @@ int main(int argc, char **argv)
    }
 </table></blockquote>
 
+<h2>Download</h2>
+<blockquote>
+For all download information please visit
+the <a href="http://www.aei.mpg.de/~peekas/cadabra/download.html">download
+	 page of cadabra</a>.
+</blockquote>
+
 <h2>Utilities</h2>
 <blockquote>
 Several small programs are bundled with modglue. They provide some
 additional functionality that was easy to implement with the library,
 or are generally useful for command-line driven programs. 
 <dl>
-<dt><a name="ptywrap"><strong>ptywrap</strong> (modglue executable)</dt><p>
+<dt><a name="ptywrap"><strong>ptywrap</strong></a></dt><p>
    <dd>Starts a program with stdin/stdout/stderr connected to a pseudo
        tty device, and map them to fd 0,1,2. This can be used to trick
        programs like <tt>ftp</tt> or <tt>sed</tt> into thinking that
@@ -76,7 +83,7 @@ or are generally useful for command-line driven programs.
 		 is all you need to know.
    </dd>
 <p>
-<dt><a name="prompt"><strong>prompt</strong> (modglue executable)</dt><p>
+<dt><a name="prompt"><strong>prompt</strong></a></dt><p>
    <dd>The prompt utility wraps other programs such that their input
        has the well-known readline behaviour. In other words, you can
        use the cursor keys for editing, there is a history, and so on.
