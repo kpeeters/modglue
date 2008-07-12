@@ -7,3 +7,15 @@ config.status
 config.cache
 config.log
 modglue-config
+*.o
+src/ptywrap
+src/prompt
+*.lo
+*~
+src/isatty
+src/test_child_process
+src/test_ext_process
+src/test_writes
+src/test_pipe
+*.la
+src/.libs
