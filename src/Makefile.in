@@ -102,11 +102,11 @@ install: library tools
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/bin
 	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/include/modglue
 	${IPHASE} libmodglue.la ${DESTDIR}@prefix@/lib
-	${IPHASE} libmid.la ${DESTDIR}@prefix@/lib
+#	${IPHASE} libmid.la ${DESTDIR}@prefix@/lib
 	${FPHASE}
 	${IPHASE} ptywrap ${DESTDIR}@prefix@/bin
 	${IPHASE} prompt ${DESTDIR}@prefix@/bin
-	${IPHASE} isatty ${DESTDIR}@prefix@/bin
+#	${IPHASE} isatty ${DESTDIR}@prefix@/bin
 	@INSTALL@ -m 0644 ../include/modglue/ext_process.hh ${DEVDESTDIR}@prefix@/include/modglue
 	@INSTALL@ -m 0644 ../include/modglue/process.hh ${DEVDESTDIR}@prefix@/include/modglue
 	@INSTALL@ -m 0644 ../include/modglue/pipe.hh ${DEVDESTDIR}@prefix@/include/modglue

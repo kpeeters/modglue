@@ -22,6 +22,7 @@ install:
 	@INSTALL@ -d -m 755 ${DESTDIR}@prefix@/share/man/man1
 	@INSTALL@ man/man1/prompt.1 ${DESTDIR}@prefix@/share/man/man1
 	@INSTALL@ man/man1/ptywrap.1 ${DESTDIR}@prefix@/share/man/man1
+#	@INSTALL@ man/man1/isatty.1 ${DESTDIR}@prefix@/share/man/man1
 
 uninstall:
 	( cd src && $(MAKE) uninstall );
