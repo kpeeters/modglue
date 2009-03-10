@@ -103,7 +103,9 @@ install: library tools
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/bin
 	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/include/modglue
 	${IPHASE} libmodglue.la ${DESTDIR}@prefix@/lib
+ifneq ($(DESTDIR),$(DEVDESTDIR))
 	mv ${DESTDIR}@prefix@/lib/libmodglue*.so ${DEVDESTDIR}@prefix@/lib
+endif
 #	${IPHASE} libmid.la ${DESTDIR}@prefix@/lib
 	${FPHASE}
 	${IPHASE} ptywrap ${DESTDIR}@prefix@/bin
