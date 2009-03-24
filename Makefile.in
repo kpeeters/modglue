@@ -1,5 +1,5 @@
 
-export RELEASE=1.14
+export RELEASE=1.15
 
 .PHONY: all install library static examples uninstall clean distclean
 
