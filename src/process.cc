@@ -185,7 +185,7 @@ void child_process::fork()
 				}
 //			write(1,"{ \"stdin\" , input }\n{ \"stdout\" , output }\n{ \"stderr\" , output }\n",61);
 			execvp(name.c_str(), const_cast<char *const *>(cargs));
-			throw std::logic_error("modglue::child_process::fork: execlp failed");
+			throw std::logic_error("modglue::child_process::fork: execlp failed for "+name);
 			break;
 			}
 		default: // we are the parent
