@@ -16,7 +16,7 @@ The libModglue library is a C++ library with classes for forking external
 processes and asynchronous reading from streams. It takes
 away the burden of all subtleties involving the Unix <tt>fork</tt> 
 call. The asynchronous read facility enables one to read on
-multiple input streams at the same time, without loosing any
+multiple input streams at the same time, without losing any
 of the standard C++ stream facilities.</div>
 
 <div class="text">
@@ -73,7 +73,7 @@ Several small programs are bundled with modglue. They provide some
 additional functionality that was easy to implement with the library,
 or are generally useful for command-line driven programs. 
 <dl>
-<dt><a name="ptywrap"><strong>ptywrap</strong></a></dt><p>
+<dt><a name="ptywrap"><strong>ptywrap</strong></a></dt>
    <dd>Starts a program with stdin/stdout/stderr connected to a pseudo
        tty device, and map them to fd 0,1,2. This can be used to trick
        programs like <tt>ftp</tt> or <tt>sed</tt> into thinking that
@@ -83,7 +83,7 @@ or are generally useful for command-line driven programs.
 		 is all you need to know.
    </dd>
 <p>
-<dt><a name="prompt"><strong>prompt</strong></a></dt><p>
+<dt><a name="prompt"><strong>prompt</strong></a></dt>
    <dd>The prompt utility wraps other programs such that their input
        has the well-known readline behaviour. In other words, you can
        use the cursor keys for editing, there is a history, and so on.
@@ -94,7 +94,5 @@ or are generally useful for command-line driven programs.
 </blockquote>
 <p><br><p>
 
-<hr noshade size=1>
-$Id: index.html,v 1.38 2007/03/08 16:57:25 peekas Exp $
 </body>
 </html>
