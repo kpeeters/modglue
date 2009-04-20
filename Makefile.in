@@ -17,8 +17,8 @@ examples: library
 
 install:
 	( cd src && $(MAKE) install );
-	@INSTALL@ -d -m 755 ${DESTDIR}@prefix@/lib/pkgconfig
-	@INSTALL@ -m 644 modglue.pc ${DESTDIR}@prefix@/lib/pkgconfig/
+	@INSTALL@ -d -m 755 ${DESTDIR}@prefix@/@libdir@/pkgconfig
+	@INSTALL@ -m 644 modglue.pc ${DESTDIR}@prefix@/@libdir@/pkgconfig/
 	@INSTALL@ -d -m 755 ${DESTDIR}@prefix@/share/man/man1
 	@INSTALL@ man/man1/prompt.1 ${DESTDIR}@prefix@/share/man/man1
 	@INSTALL@ man/man1/ptywrap.1 ${DESTDIR}@prefix@/share/man/man1

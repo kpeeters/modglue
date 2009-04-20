@@ -15,10 +15,10 @@ endif
 LTRELEASE = `echo ${RELEASE} | sed -e "s/\./:/g"`
 
 CPHASE = ${LIBTOOL} --tag=CXX --mode=compile @CXX@ -c @CFLAGS@
-LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/lib @LIBS@
+LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/@libdir@ @LIBS@
 MPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@
 IPHASE = ${LIBTOOL} --mode=install @INSTALL@
-FPHASE = ${LIBTOOL} --mode=finish @prefix@/lib
+FPHASE = ${LIBTOOL} --mode=finish @prefix@/@libdir@
 
 TIMESTAMP = -D"DATETIME=\"`date | sed -e 's/  / /'`\"" -DHOSTNAME=\"`hostname`\"
 
@@ -98,13 +98,13 @@ isatty: isatty.o
 
 install: library tools
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@
-	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/lib
-	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/lib
+	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/@libdir@
+	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/@libdir@
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/bin
 	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/include/modglue
-	${IPHASE} libmodglue.la ${DESTDIR}@prefix@/lib
+	${IPHASE} libmodglue.la ${DESTDIR}@prefix@/@libdir@
 ifneq ($(DESTDIR),$(DEVDESTDIR))
-	mv ${DESTDIR}@prefix@/lib/libmodglue*.so ${DEVDESTDIR}@prefix@/lib
+	mv ${DESTDIR}@prefix@/@libdir@/libmodglue*.so ${DEVDESTDIR}@prefix@/@libdir@
 endif
 #	${IPHASE} libmid.la ${DESTDIR}@prefix@/lib
 	${FPHASE}
