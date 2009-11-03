@@ -25,6 +25,7 @@
 #ifndef pipe_hh_
 #define pipe_hh_
 
+#include <cstdio>
 #include <string>
 #include <string.h>
 #include <sigc++/sigc++.h>
