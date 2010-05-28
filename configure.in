@@ -20,7 +20,7 @@ dnl Checks for libraries.
 dnl Checks for header files.
 
 MAC_OS_X=""
-if test "`uname`" == "Darwin"
+if test x"`uname`" == "xDarwin"
    then MAC_OS_X="1"
         echo "checking system type... Darwin"
    else echo "checking system type... Unix"
@@ -57,7 +57,7 @@ AC_LIBRARY_NET
 
 USE_UTIL_H=1
 AC_CHECK_HEADERS(util.h)
-if test "${ac_cv_header_util_h}" == "no"
+if test x"${ac_cv_header_util_h}" == "xno"
    then USE_UTIL_H=0
 fi
 LINK_UTIL=""
