@@ -15,8 +15,8 @@ endif
 LTRELEASE = `echo ${RELEASE} | sed -e "s/\./:/g"`
 
 CPHASE = ${LIBTOOL} --tag=CXX --mode=compile @CXX@ -c @CFLAGS@
-#LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/@libdir@ @LIBS@
-LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} @LIBS@
+LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/@libdir@ @LIBS@
+#LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} @LIBS@
 MPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@
 IPHASE = ${LIBTOOL} --mode=install @INSTALL@
 FPHASE = ${LIBTOOL} --mode=finish @prefix@/@libdir@
@@ -66,6 +66,7 @@ test_writes: test_writes.o
 
 prompt: prompt.o
 	${MPHASE} -o prompt prompt.o `pkg-config sigc++-2.0 --libs` libmodglue.la 
+	chrpath -d .libs/prompt
 
 prompt_static: prompt.cc library
 	${CPHASE} ${TIMESTAMP} -o prompt.o \
