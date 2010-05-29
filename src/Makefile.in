@@ -15,7 +15,8 @@ endif
 LTRELEASE = `echo ${RELEASE} | sed -e "s/\./:/g"`
 
 CPHASE = ${LIBTOOL} --tag=CXX --mode=compile @CXX@ -c @CFLAGS@
-LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/@libdir@ @LIBS@
+#LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} -rpath @prefix@/@libdir@ @LIBS@
+LPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@ -version-info ${LTRELEASE} @LIBS@
 MPHASE = ${LIBTOOL} --tag=CXX --mode=link @CXX@
 IPHASE = ${LIBTOOL} --mode=install @INSTALL@
 FPHASE = ${LIBTOOL} --mode=finish @prefix@/@libdir@
