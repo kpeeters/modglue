@@ -184,7 +184,8 @@ int modglue::pipe::read_nonblocking_(char *data, int maxlen)
 		}
 	else {
 		// CHECKED: recmsg is not the reason for dropped bytes
-		char cbuf[CMSG_SPACE(sizeof(int))]; 
+		int len=CMSG_SPACE(sizeof(int));
+		char *cbuf = new char[len];
 		struct msghdr mh = {0};
 		struct iovec iov; 
 		
@@ -193,13 +194,16 @@ int modglue::pipe::read_nonblocking_(char *data, int maxlen)
 		iov.iov_base = data; 
 		iov.iov_len = maxlen;
 		mh.msg_control = cbuf;
-		mh.msg_controllen = sizeof cbuf; 
+		mh.msg_controllen = len;
 		
 		int ret;
 		do {
 			ret = recvmsg(fd_, &mh, 0);
 			} while(ret<0 && errno==EINTR);
 		assert(!(ret<0 && errno!=EAGAIN));
+		
+		delete [] cbuf;
+
 		return ret;
 		}
 	}

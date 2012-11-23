@@ -16,6 +16,7 @@ src/isatty
 src/test_child_process
 src/test_ext_process
 src/test_writes
+src/test_writes.out
 src/test_pipe
 *.la
 src/.libs

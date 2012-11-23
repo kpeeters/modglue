@@ -1,4 +1,13 @@
+2012-01-26  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Released 1.18
+
+	* Changed read_nonblocking_ in pipe.cc to circumvent a Mac OSX
+	compiler bug.
+
 2010-05-29  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+
+	* Released 1.17
 
 	* Removed RPATH from prompt.
 

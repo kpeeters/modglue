@@ -1,5 +1,5 @@
 
-export RELEASE=1.17
+export RELEASE=1.18
 
 .PHONY: all install library static examples uninstall clean distclean
 
@@ -7,6 +7,7 @@ all: library
 #examples
 
 library:
+	echo @libdir@
 	( cd src && $(MAKE) );
 
 static:
