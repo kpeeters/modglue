@@ -5,7 +5,7 @@ MACTEST= @MAC_OS_X@
 ifeq ($(strip $(MACTEST)),)
 LIBTOOL = libtool
 else
-export MACOSX_DEPLOYMENT_TARGET=10.3
+#export MACOSX_DEPLOYMENT_TARGET=10.3
 LIBTOOL = glibtool
 endif
 
@@ -66,7 +66,7 @@ test_writes: test_writes.o
 
 prompt: prompt.o
 	${MPHASE} -o prompt prompt.o `pkg-config sigc++-2.0 --libs` libmodglue.la 
-	chrpath -d .libs/prompt
+#	chrpath -d .libs/prompt
 
 prompt_static: prompt.cc library
 	${CPHASE} ${TIMESTAMP} -o prompt.o \
