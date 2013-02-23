@@ -8,6 +8,12 @@ else
 #export MACOSX_DEPLOYMENT_TARGET=10.3
 LIBTOOL = glibtool
 endif
+# Ubuntu/Debian sometimes use DEVDESTDIR, but if it is
+# absent, just set it equal to DESTDIR otherwise macs will
+# get confused.
+ifndef DEVDESTDIR
+DEVDESTDIR=${DESTDIR}
+endif
 
 # We use libtool but without any of the automake 
 # nonsense, so we only need the following 5 lines.
@@ -99,7 +105,7 @@ isatty: isatty.o
 #------- Library --------------------------------------
 
 install: library tools
-ifndef DEVDESTDIR
+ifeq ($(strip ${DEVDESTDIR}),)
 	DEVDESTDIR=${DESTDIR}
 endif
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@
