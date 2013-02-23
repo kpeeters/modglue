@@ -99,6 +99,9 @@ isatty: isatty.o
 #------- Library --------------------------------------
 
 install: library tools
+ifndef DEVDESTDIR
+	DEVDESTDIR=${DESTDIR}
+endif
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@
 	@INSTALL@ -m 755 -d ${DESTDIR}@prefix@/@libdir@
 	@INSTALL@ -m 755 -d ${DEVDESTDIR}@prefix@/@libdir@

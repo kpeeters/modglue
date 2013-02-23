@@ -293,7 +293,7 @@ bool main::select_callback(int fd)
 				pid_t childpid=0;
 				int   exit_code=0;
 //				std::cerr << buffer << std::endl;
-				sscanf(buffer, "%ld %d", &childpid, &exit_code);
+				sscanf(buffer, "%ld %d", (long *)&childpid, &exit_code);
 				// This often gets reached after cerr has gone away. Why?
 				for(unsigned int i=0; i<processes_.size(); ++i) {
 //					std::cerr << processes_[i]->get_pid() << std::endl;
