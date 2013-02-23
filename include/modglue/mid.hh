@@ -24,6 +24,8 @@
 
 #include <string>
 #include <iostream>
+#include <sys/types.h>
+
 //#include <proj++/thread.hh>
 //#include <proj++/thread_mutex.hh>
 
