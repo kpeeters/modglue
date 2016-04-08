@@ -29,7 +29,7 @@ FPHASE = ${LIBTOOL} --mode=finish @prefix@/@libdir@
 
 TIMESTAMP = -D"DATETIME=\"`date | sed -e 's/  / /'`\"" -DHOSTNAME=\"`hostname`\"
 
-all: library tests tools
+all: library tools #tests
 
 TOOLS  = ptywrap isatty prompt
 THELIB = libmodglue.la libmid.la
