@@ -1,35 +1,41 @@
-2012-01-26  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2017-01-19  Kasper Peeters  <kasper.peeters@phi-sci.com>
+
+	* Prepared for upload to github.
+
+	* Released 1.20
+
+2012-01-26  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.18
 
 	* Changed read_nonblocking_ in pipe.cc to circumvent a Mac OSX
 	compiler bug.
 
-2010-05-29  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2010-05-29  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.17
 
 	* Removed RPATH from prompt.
 
-2010-03-03  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2010-03-03  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.16
 
-2009-11-03  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2009-11-03  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Fixed problem with gcc-4.4.
 
-2009-03-24  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2009-03-24  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Started adding Windows compatibility.
 
-2008-12-14  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2008-12-14  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.12
 
 	* Bug fixes for Debian/Ubuntu packages.
 
-2008-05-06  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2008-05-06  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.10
 
@@ -37,7 +43,7 @@
 
 	* Fixed some issues with superfluous linking.
 
-2008-04-05  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2008-04-05  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.9
 
@@ -49,7 +55,7 @@
 
 	  Thanks to Alexei Petrash for suggesting these changes.
 
-2007-03-26  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2007-03-26  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Released 1.8
 
@@ -93,7 +99,7 @@
 	* Added proper versioning support using -version-info rather than
 	the -release system. 
 
-2006-08-18  Kasper Peeters  <kasper.peeters@aei.mpg.de>
+2006-08-18  Kasper Peeters  <kasper.peeters@phi-sci.com>
 
 	* Added support for Mac OS X.
 
